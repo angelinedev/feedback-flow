@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  if (user) {
+    const dest = user.role === 'admin' ? '/admin' : user.role === 'student' ? '/student' : '/faculty';
+    return <Navigate to={dest} replace />;
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +22,11 @@ const Login = () => {
     setLoading(true);
     setTimeout(() => {
       const result = login(email);
-      if (!result.success) setError(result.error || 'Login failed');
+      if (result.success) {
+        // Navigation will happen via the re-render with user set
+      } else {
+        setError(result.error || 'Login failed');
+      }
       setLoading(false);
     }, 600);
   };
