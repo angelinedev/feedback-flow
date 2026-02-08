@@ -8,6 +8,9 @@ interface DataContextType {
   teachers: Teacher[];
   timetable: TimetableEntry[];
   feedback: FeedbackSubmission[];
+  setStudents: (data: Student[]) => void;
+  setTeachers: (data: Teacher[]) => void;
+  setTimetable: (data: TimetableEntry[]) => void;
   uploadStudentsCSV: (file: File) => Promise<void>;
   uploadTeachersCSV: (file: File) => Promise<void>;
   uploadTimetableCSV: (file: File) => Promise<void>;
@@ -52,7 +55,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        dynamicTyping: false,
         transformHeader: (h: string) => h.trim(),
+        transform: (value: string) => value.trim(),
         complete: (results) => {
           const cleaned = results.data.filter((row: any) =>
             Object.values(row).some(v => v !== null && v !== undefined && String(v).trim() !== '')
@@ -127,6 +132,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <DataContext.Provider value={{
       students, teachers, timetable, feedback,
+      setStudents, setTeachers, setTimetable,
       uploadStudentsCSV, uploadTeachersCSV, uploadTimetableCSV,
       submitFeedback, getSubmittedKeys, getTeacherSubjects, getClassSubjects,
       getTeacherFeedback, getStudentCountByClass,
